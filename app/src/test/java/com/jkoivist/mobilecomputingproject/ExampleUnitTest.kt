@@ -1,4 +1,4 @@
-package com.jkoivist.mobile_project
+package com.jkoivist.mobilecomputingproject
 
 import org.junit.Test
 

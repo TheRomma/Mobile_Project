@@ -1,4 +1,4 @@
-package com.jkoivist.mobile_project
+package com.jkoivist.mobilecomputingproject
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -19,6 +19,6 @@ class ExampleInstrumentedTest {
     fun useAppContext() {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        assertEquals("com.jere_koivisto.mobile_project", appContext.packageName)
+        assertEquals("com.jkoivist.mobilecomputingproject", appContext.packageName)
     }
 }
