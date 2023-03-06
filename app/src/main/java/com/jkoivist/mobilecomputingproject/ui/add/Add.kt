@@ -1,6 +1,9 @@
 package com.jkoivist.mobilecomputingproject.ui.add
 
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
 import android.content.Context
+import android.widget.DatePicker
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -20,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.jkoivist.mobilecomputingproject.MainViewModel
 import com.jkoivist.mobilecomputingproject.data.Reminder
+import java.util.*
 
 @Composable
 fun Add(
@@ -32,6 +36,31 @@ fun Add(
 
         val title = remember { mutableStateOf("") }
         val message = remember { mutableStateOf("") }
+        val context = LocalContext.current
+        val calendar = Calendar.getInstance()
+
+        var year = calendar[Calendar.YEAR]
+        var month = calendar[Calendar.MONTH]
+        var day = calendar[Calendar.DAY_OF_MONTH]
+        var hour = calendar[Calendar.HOUR_OF_DAY]
+        var minute = calendar[Calendar.MINUTE]
+
+        val datePicker = DatePickerDialog(
+            context,
+            { _: DatePicker, selectedYear: Int, selectedMonth: Int, selectedDay : Int ->
+                year = selectedYear
+                month = selectedMonth
+                day = selectedDay
+            }, year, month, day
+        )
+
+        val timePicker = TimePickerDialog(
+            context,
+            {_, selectedHour: Int, selectedMinute: Int ->
+                hour = selectedHour
+                minute = selectedMinute
+            }, hour, minute, true
+        )
 
         Column(
             modifier = Modifier.padding(20.dp),
@@ -56,6 +85,22 @@ fun Add(
                 shape = RoundedCornerShape(corner = CornerSize(10.dp))
             )
 
+            Button(
+                onClick = {
+                    datePicker.show()
+                },modifier = Modifier.fillMaxWidth().height(40.dp)
+            ){
+                Text("Choose date.")
+            }
+
+            Button(
+                onClick = {
+                    timePicker.show()
+                },modifier = Modifier.fillMaxWidth().height(40.dp)
+            ){
+                Text("Choose time.")
+            }
+
             Spacer(modifier = Modifier.height(30.dp))
 
             Row(
@@ -72,25 +117,69 @@ fun Add(
                 ) {
                     Text(text = "Cancel")
                 }
-                Button(
-                    onClick = {
-                        viewModel.insertReminder(
-                            Reminder(
-                                title.value,
-                                message.value,
-                                0,
-                                0,
-                                0,
-                                0,
-                                0
-                            )
-                        )
-                        navController.navigate("home")
-                    },
-                    modifier = Modifier.weight(0.5f).height(50.dp),
-                    shape = RoundedCornerShape(corner = CornerSize(10.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text(text = "Create reminder")
+                    Button(
+                        onClick = {
+                            val reminderDateTime = Calendar.getInstance()
+                            reminderDateTime.set(year, month, day, hour, minute)
+
+                            val nowDateTime = Calendar.getInstance()
+
+                            val delay =
+                                (reminderDateTime.timeInMillis / 1000L) - (nowDateTime.timeInMillis / 1000L)
+
+                            viewModel.timedNotification(1, title.value, message.value, delay)
+
+                            viewModel.insertReminder(
+                                Reminder(
+                                    title.value,
+                                    message.value,
+                                    0,
+                                    0,
+                                    reminderDateTime.timeInMillis / 1000L,
+                                    nowDateTime.timeInMillis / 1000L,
+                                    0
+                                )
+                            )
+                            navController.navigate("home")
+                        },
+                        modifier = Modifier.weight(0.5f).height(50.dp),
+                        shape = RoundedCornerShape(corner = CornerSize(10.dp))
+                    ) {
+                        Text(text = "Create with notification")
+                    }
+                    Button(
+                        onClick = {
+                            val reminderDateTime = Calendar.getInstance()
+                            reminderDateTime.set(year, month, day, hour, minute)
+
+                            val nowDateTime = Calendar.getInstance()
+
+                            val delay =
+                                (reminderDateTime.timeInMillis / 1000L) - (nowDateTime.timeInMillis / 1000L)
+
+                            //viewModel.timedNotification(1, title.value, message.value, delay)
+
+                            viewModel.insertReminder(
+                                Reminder(
+                                    title.value,
+                                    message.value,
+                                    0,
+                                    0,
+                                    0,
+                                    nowDateTime.timeInMillis / 1000L,
+                                    0
+                                )
+                            )
+                            navController.navigate("home")
+                        },
+                        modifier = Modifier.weight(0.5f).height(50.dp),
+                        shape = RoundedCornerShape(corner = CornerSize(10.dp))
+                    ) {
+                        Text(text = "Create without notification")
+                    }
                 }
             }
         }

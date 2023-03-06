@@ -45,6 +45,9 @@ interface ReminderDao{
 
     @Query("SELECT * FROM reminders")
     fun getAll(): LiveData<List<Reminder>>
+
+    @Query("SELECT * FROM reminders WHERE reminder_time < :nowTime")
+    fun getAllDue(nowTime: Int): LiveData<List<Reminder>>
 }
 
 @Database(entities = [Reminder::class], version = 1)

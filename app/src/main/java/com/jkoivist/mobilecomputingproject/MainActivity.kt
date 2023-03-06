@@ -1,6 +1,10 @@
 package com.jkoivist.mobilecomputingproject
 
 import android.app.Application
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import androidx.activity.ComponentActivity
@@ -14,26 +18,36 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.jkoivist.mobilecomputingproject.data.Reminder
-import com.jkoivist.mobilecomputingproject.data.ReminderDB
-import com.jkoivist.mobilecomputingproject.data.ReminderRepo
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
+import androidx.work.workDataOf
+import com.jkoivist.mobilecomputingproject.data.*
 import com.jkoivist.mobilecomputingproject.ui.theme.MobileComputingProjectTheme
+import java.util.concurrent.TimeUnit
 
 class MainViewModel(application: Application) : ViewModel(){
     val allReminders: LiveData<List<Reminder>>
     private val repo: ReminderRepo
     val currentReminder: LiveData<Reminder>
     var displayReminder: Reminder
+    var app: Context
+    val notifier: NotificationHelper
 
     init{
         val reminderDB = ReminderDB.getInstance(application)
         val reminderDao = reminderDB.dao()
         repo = ReminderRepo(reminderDao)
+        app = application.applicationContext
+        notifier = NotificationHelper(app)
+        createNotificationChannel()
 
         allReminders = repo.allReminders
         currentReminder = repo.currentReminder
@@ -62,6 +76,24 @@ class MainViewModel(application: Application) : ViewModel(){
 
     fun getReminderById(id: Long){
         repo.getById(id)
+    }
+
+    fun createNotificationChannel(){
+        notifier.createChannel()
+    }
+    fun instantNotification(id: Int, title: String, message: String){
+        notifier.createNotification(id, title, message)
+    }
+
+    fun timedNotification(id: Int, title: String, message: String, delay: Long){
+        val request = OneTimeWorkRequestBuilder<ReminderWorker>()
+            .setInitialDelay(delay, TimeUnit.SECONDS)
+            .setInputData(workDataOf(
+                "id" to id,
+                "title" to title,
+                "message" to message,
+            )).build()
+        WorkManager.getInstance(app).enqueue(request)
     }
 }
 

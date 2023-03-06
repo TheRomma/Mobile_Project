@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.jkoivist.mobilecomputingproject.MainViewModel
 import com.jkoivist.mobilecomputingproject.data.Reminder
+import java.util.*
 
 class SimpleRem(val title: String, val message: String)
 
@@ -36,6 +37,7 @@ fun Home(
         modifier = Modifier.fillMaxSize()
     ){
         val allReminders by viewModel.allReminders.observeAsState(listOf())
+        val nowDateTime = Calendar.getInstance().timeInMillis/1000L
 
         Column() {
             LazyColumn(
@@ -45,19 +47,20 @@ fun Home(
                 reverseLayout = true
             ) {
                 items(items = allReminders, itemContent = { item ->
-                    Card(
-                        Modifier
-                            .fillMaxWidth()
-                            .height(80.dp),
-                        shape = RoundedCornerShape(corner = CornerSize(10.dp))
-                    ) {
-                        Row(
+                    if(item.reminder_time < nowDateTime) {
+                        Card(
                             Modifier
                                 .fillMaxWidth()
-                                .padding(10.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ){
-                            /*
+                                .height(80.dp),
+                            shape = RoundedCornerShape(corner = CornerSize(10.dp))
+                        ) {
+                            Row(
+                                Modifier
+                                    .fillMaxWidth()
+                                    .padding(10.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                /*
                             Icon(
                                 painter = rememberVectorPainter(Icons.Filled.Person),
                                 contentDescription = "entry_image",
@@ -65,28 +68,30 @@ fun Home(
                             )
 
                              */
-                            Text(
-                                text = item.title,
-                                style = TextStyle(fontSize = 20.sp),
-                                textAlign = TextAlign.Left
-                            )
-                            Spacer(Modifier.weight(1f))
-                            OutlinedButton(
-                                onClick = {
-                                    //viewModel.getReminderById(item.itemId)
-                                    viewModel.displayReminder = item
-                                    navController.navigate("display")
-                                },
-                                shape = CircleShape
-                            ) {
-                                Icon(
-                                    painter = rememberVectorPainter(Icons.Filled.Edit),
-                                    contentDescription = "edit_image",
-                                    modifier = Modifier.size(30.dp),
+                                Text(
+                                    text = item.title,
+                                    style = TextStyle(fontSize = 20.sp),
+                                    textAlign = TextAlign.Left
                                 )
+                                Spacer(Modifier.weight(1f))
+                                OutlinedButton(
+                                    onClick = {
+                                        //viewModel.getReminderById(item.itemId)
+                                        viewModel.displayReminder = item
+                                        navController.navigate("display")
+                                    },
+                                    shape = CircleShape
+                                ) {
+                                    Icon(
+                                        painter = rememberVectorPainter(Icons.Filled.Edit),
+                                        contentDescription = "edit_image",
+                                        modifier = Modifier.size(30.dp),
+                                    )
+                                }
                             }
-                        }
 
+
+                        }
                     }
                     Spacer(Modifier.height(5.dp))
                 })
@@ -100,15 +105,23 @@ fun Home(
                     navController.navigate("login")
                 },
                     Modifier
-                        .weight(0.33f)
+                        .weight(0.25f)
                         .height(80.dp)) {
                     Text(text = "Logout")
+                }
+                Button(
+                    onClick = {
+                        navController.navigate("home")
+                    },modifier = Modifier
+                        .weight(0.25f).height(80.dp)
+                ){
+                    Text("Refresh list")
                 }
                 Button(onClick = {
                     navController.navigate("add")
                 },
                     Modifier
-                        .weight(0.33f)
+                        .weight(0.25f)
                         .height(80.dp)) {
                     Text(text = "Add entry")
                 }
@@ -117,7 +130,7 @@ fun Home(
                     navController.navigate("account")
                 },
                     Modifier
-                        .weight(0.33f)
+                        .weight(0.25f)
                         .height(80.dp)
                 ) {
                     Text(text = "Account settings")
