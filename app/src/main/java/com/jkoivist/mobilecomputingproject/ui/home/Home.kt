@@ -1,5 +1,6 @@
 package com.jkoivist.mobilecomputingproject.ui.home
 
+import android.location.Location
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -22,6 +23,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.google.android.gms.maps.model.LatLng
 import com.jkoivist.mobilecomputingproject.MainViewModel
 import com.jkoivist.mobilecomputingproject.data.Reminder
 import java.util.*
@@ -39,6 +41,11 @@ fun Home(
         val allReminders by viewModel.allReminders.observeAsState(listOf())
         val nowDateTime = Calendar.getInstance().timeInMillis/1000L
 
+        var locA: Location = Location("A")
+        var locB: Location = Location("B")
+        locA.longitude = viewModel.virtualX
+        locA.latitude = viewModel.virtualY
+
         Column() {
             LazyColumn(
                 Modifier
@@ -46,8 +53,17 @@ fun Home(
                     .padding(20.dp),
                 reverseLayout = true
             ) {
+                if(!viewModel.useVirtualLocation){
+                    locA.longitude = viewModel.posX
+                    locA.latitude = viewModel.posY
+                }else{
+                    locA.longitude = viewModel.virtualX
+                    locA.latitude = viewModel.virtualY
+                }
                 items(items = allReminders, itemContent = { item ->
-                    if(item.reminder_time < nowDateTime) {
+                    locB.longitude = item.location_X
+                    locB.latitude = item.location_Y
+                    if(/*(item.reminder_time < nowDateTime) || */!item.use_location || item.use_location && (1000.0 > locA.distanceTo(locB))) {
                         Card(
                             Modifier
                                 .fillMaxWidth()
@@ -111,11 +127,11 @@ fun Home(
                 }
                 Button(
                     onClick = {
-                        navController.navigate("home")
+                        navController.navigate("location")
                     },modifier = Modifier
                         .weight(0.25f).height(80.dp)
                 ){
-                    Text("Refresh list")
+                    Text("Location")
                 }
                 Button(onClick = {
                     navController.navigate("add")

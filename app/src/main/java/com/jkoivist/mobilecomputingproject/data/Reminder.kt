@@ -15,11 +15,12 @@ import kotlinx.coroutines.*
 data class Reminder(
     @ColumnInfo(name = "title") var title: String,
     @ColumnInfo(name = "message") var message: String,
-    @ColumnInfo(name = "location_x") var location_X: Long,
-    @ColumnInfo(name = "location_y") var location_Y: Long,
+    @ColumnInfo(name = "location_x") var location_X: Double,
+    @ColumnInfo(name = "location_y") var location_Y: Double,
     @ColumnInfo(name = "reminder_time") var reminder_time: Long,
     @ColumnInfo(name = "creation_time") var creation_time: Long,
-    @ColumnInfo(name = "creator_id") var creator_id: Long
+    @ColumnInfo(name = "creator_id") var creator_id: Long,
+    @ColumnInfo(name = "use_location") var use_location: Boolean
 ) {
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "itemId")
@@ -50,7 +51,7 @@ interface ReminderDao{
     fun getAllDue(nowTime: Int): LiveData<List<Reminder>>
 }
 
-@Database(entities = [Reminder::class], version = 1)
+@Database(entities = [Reminder::class], version = 2)
 abstract class ReminderDB: RoomDatabase(){
     abstract fun dao(): ReminderDao
         companion object{

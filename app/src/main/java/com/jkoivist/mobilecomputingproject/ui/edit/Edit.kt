@@ -73,11 +73,12 @@ fun Edit(
                         var newReminder = Reminder(
                             title.value,
                             message.value,
-                            0,
-                            0,
-                            0,
-                            0,
-                            0
+                            reminder.location_X,
+                            reminder.location_Y,
+                            reminder.reminder_time,
+                            reminder.creation_time,
+                            reminder.creator_id,
+                            reminder.use_location
                         )
                         newReminder.itemId = reminder.itemId
                         viewModel.displayReminder = newReminder

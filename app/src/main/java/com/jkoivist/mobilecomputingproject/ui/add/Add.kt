@@ -101,6 +101,14 @@ fun Add(
                 Text("Choose time.")
             }
 
+            Button(
+                onClick = {
+                    navController.navigate("map")
+                },modifier = Modifier.fillMaxWidth().height(40.dp)
+            ){
+                Text("Choose location.")
+            }
+
             Spacer(modifier = Modifier.height(30.dp))
 
             Row(
@@ -130,25 +138,57 @@ fun Add(
                             val delay =
                                 (reminderDateTime.timeInMillis / 1000L) - (nowDateTime.timeInMillis / 1000L)
 
+                            //viewModel.timedNotification(1, title.value, message.value, delay)
+
+                            viewModel.insertReminder(
+                                Reminder(
+                                    title.value,
+                                    message.value,
+                                    viewModel.pickedX,
+                                    viewModel.pickedY,
+                                    0,
+                                    nowDateTime.timeInMillis / 1000L,
+                                    0,
+                                    false
+                                )
+                            )
+                            navController.navigate("home")
+                        },
+                        modifier = Modifier.weight(0.25f).height(100.dp),
+                        shape = RoundedCornerShape(corner = CornerSize(10.dp))
+                    ) {
+                        Text(text = "Create with no time or location")
+                    }
+                    Button(
+                        onClick = {
+                            val reminderDateTime = Calendar.getInstance()
+                            reminderDateTime.set(year, month, day, hour, minute)
+
+                            val nowDateTime = Calendar.getInstance()
+
+                            val delay =
+                                (reminderDateTime.timeInMillis / 1000L) - (nowDateTime.timeInMillis / 1000L)
+
                             viewModel.timedNotification(1, title.value, message.value, delay)
 
                             viewModel.insertReminder(
                                 Reminder(
                                     title.value,
                                     message.value,
-                                    0,
-                                    0,
+                                    viewModel.pickedX,
+                                    viewModel.pickedY,
                                     reminderDateTime.timeInMillis / 1000L,
                                     nowDateTime.timeInMillis / 1000L,
-                                    0
+                                    0,
+                                    false
                                 )
                             )
                             navController.navigate("home")
                         },
-                        modifier = Modifier.weight(0.5f).height(50.dp),
+                        modifier = Modifier.weight(0.25f).height(100.dp),
                         shape = RoundedCornerShape(corner = CornerSize(10.dp))
                     ) {
-                        Text(text = "Create with notification")
+                        Text(text = "Create with timed notification")
                     }
                     Button(
                         onClick = {
@@ -166,20 +206,54 @@ fun Add(
                                 Reminder(
                                     title.value,
                                     message.value,
-                                    0,
-                                    0,
+                                    viewModel.pickedX,
+                                    viewModel.pickedY,
                                     0,
                                     nowDateTime.timeInMillis / 1000L,
-                                    0
+                                    0,
+                                    true
                                 )
                             )
                             navController.navigate("home")
                         },
-                        modifier = Modifier.weight(0.5f).height(50.dp),
+                        modifier = Modifier.weight(0.25f).height(100.dp),
                         shape = RoundedCornerShape(corner = CornerSize(10.dp))
                     ) {
-                        Text(text = "Create without notification")
+                        Text(text = "Create with location")
                     }
+
+                    Button(
+                        onClick = {
+                            val reminderDateTime = Calendar.getInstance()
+                            reminderDateTime.set(year, month, day, hour, minute)
+
+                            val nowDateTime = Calendar.getInstance()
+
+                            val delay =
+                                (reminderDateTime.timeInMillis / 1000L) - (nowDateTime.timeInMillis / 1000L)
+
+                            viewModel.timedNotification(1, title.value, message.value, delay)
+
+                            viewModel.insertReminder(
+                                Reminder(
+                                    title.value,
+                                    message.value,
+                                    viewModel.pickedX,
+                                    viewModel.pickedY,
+                                    reminderDateTime.timeInMillis / 1000L,
+                                    nowDateTime.timeInMillis / 1000L,
+                                    0,
+                                    true
+                                )
+                            )
+                            navController.navigate("home")
+                        },
+                        modifier = Modifier.weight(0.25f).height(100.dp),
+                        shape = RoundedCornerShape(corner = CornerSize(10.dp))
+                    ) {
+                        Text(text = "Create with location and time")
+                    }
+
                 }
             }
         }
